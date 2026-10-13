@@ -1,15 +1,20 @@
 import type { SessionUsage } from 'claude-code'
+import type { Limit, Snapshot } from '../types'
 
-// 10-cell bar with half steps: 45 -> "━━━━╸─────"
-export const bar = (percent: number): string => {
+// 10-cell bar with half steps, split so the track can be drawn dim: 45 -> ["━━━━╸", "━━━━━"]
+export const bar = (percent: number): [fill: string, track: string] => {
   const halves = Math.round(Math.min(Math.max(percent, 0), 100) / 5)
   const full = Math.floor(halves / 2)
   const half = halves % 2 ? '╸' : ''
-  return '━'.repeat(full) + half + '─'.repeat(10 - full - half.length)
+  return ['━'.repeat(full) + half, '━'.repeat(10 - full - half.length)]
 }
 
+// Green under 50, yellow under 80, red from 80.
+export const tone = (percent: number): 'success' | 'warning' | 'error' =>
+  percent >= 80 ? 'error' : percent >= 50 ? 'warning' : 'success'
+
 // 152340 -> "152k"
-const k = (n: number): string => (n >= 1000 ? `${Math.floor(n / 1000)}k` : `${n}`)
+export const k = (n: number): string => (n >= 1000 ? `${Math.floor(n / 1000)}k` : `${n}`)
 
 // ms until reset -> "2h10m" / "3d11h" / "now"
 export const until = (ms: number): string => {
@@ -20,25 +25,31 @@ export const until = (ms: number): string => {
   return `${Math.floor(s / 60)}m`
 }
 
-const gauge = (label: string, percent: number): string => `${label} ${bar(percent)} ${Math.round(percent)}%`
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-const LIMITS: Record<string, string> = { five_hour: '5h', seven_day: '7d', spend_limit: '$' }
+// Epoch ms -> "Sun 17:00", local time.
+export const clock = (ms: number): string => {
+  const d = new Date(ms)
+  return `${DAYS[d.getDay()]} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
 
-export type LineInput = { model: string; project: string; branch?: string; usage: SessionUsage; now: number }
+// The 5h window counts down; the 7d one names when it resets, as the bash status line did.
+const limit = ({ kind, percentUsed, resetsAt }: SessionUsage['rateLimits'][number], now: number): Limit => {
+  const at = resetsAt ? Date.parse(resetsAt) : undefined
+  if (kind === 'five_hour') return { label: '5h', percent: percentUsed, reset: at === undefined ? undefined : `↻${until(at - now)}` }
+  if (kind === 'seven_day') return { label: '7d', percent: percentUsed, reset: at === undefined ? undefined : `@${clock(at)}` }
+  return { label: kind === 'spend_limit' ? '$' : kind, percent: percentUsed }
+}
 
-// Fields the engine doesn't have are left out, as in the bash status line.
-export const line = ({ model, project, branch, usage, now }: LineInput): string => {
-  const parts = [model, project]
-  if (branch) parts.push(branch)
-  if (usage.cost) parts.push(`$${usage.cost.usd.toFixed(2)}`)
-  parts.push(`${Math.floor((now - usage.startedAt) / 60000)}m`)
+export type SnapshotInput = Omit<Snapshot, 'cost' | 'minutes' | 'context' | 'limits'> & { usage: SessionUsage; now: number }
 
+export const snapshot = ({ usage, now, ...rest }: SnapshotInput): Snapshot => {
   const { percent, tokens, window } = usage.context
-  if (percent !== undefined) parts.push(`${gauge('ctx', percent)} ${k(tokens ?? 0)}/${k(window)}`)
-  for (const limit of usage.rateLimits) {
-    const reset = limit.resetsAt ? ` ↻${until(Date.parse(limit.resetsAt) - now)}` : ''
-    parts.push(gauge(LIMITS[limit.kind] ?? limit.kind, limit.percentUsed) + reset)
+  return {
+    ...rest,
+    cost: usage.cost?.usd,
+    minutes: Math.floor((now - usage.startedAt) / 60000),
+    context: percent === undefined ? undefined : { percent, tokens: tokens ?? 0, window },
+    limits: usage.rateLimits.map(l => limit(l, now)),
   }
-
-  return parts.join(' · ')
 }

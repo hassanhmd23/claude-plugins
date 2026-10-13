@@ -1,1 +1,7 @@
-{ "name": "usage-line", "version": "0.1.0", "description": "Status entry with model, project, branch, cost, context and 5h/7d rate-limit bars", "author": { "name": "Hassan Hammoud" } }
+{
+  "name": "usage-line",
+  "version": "0.2.0",
+  "description": "Two-line status under the prompt: model, project, branch, cost, context and 5h/7d rate-limit bars",
+  "author": { "name": "Hassan Hammoud" },
+  "types": "./types/index.d.ts"
+}

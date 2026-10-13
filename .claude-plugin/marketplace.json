@@ -3,6 +3,6 @@
   "description": "Hassan Hammoud's Claude Code mods",
   "owner": { "name": "Hassan Hammoud" },
   "plugins": [
-    { "name": "usage-line", "source": "./plugins/usage-line", "description": "Status entry with model, project, branch, cost, context and 5h/7d rate-limit bars" }
+    { "name": "usage-line", "source": "./plugins/usage-line", "description": "Two-line status under the prompt: model, project, branch, cost, context and 5h/7d rate-limit bars" }
   ]
 }

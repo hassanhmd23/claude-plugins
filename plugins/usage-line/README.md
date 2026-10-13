@@ -1,12 +1,13 @@
 # usage-line
 
-A Claude Code mod that pins one status line under the prompt:
+A Claude Code mod that draws two rows under the prompt, in place of the shortcuts hint:
 
 ```
-Opus 5.5 · my-project · main · $1.50 · 12m · ctx ━╸──────── 15% 152k/1000k · 5h ━━━━────── 42% ↻2h10m · 7d ━━──────── 21% ↻3d11h
+Opus 5.5 (medium) · my-project · main · $2.11 · 23m · [CAVEMAN]
+ctx ━╸━━━━━━━━ 12% 116k/1000k · 5h ━╸━━━━━━━━ 10% ↻4h36m · 7d ━━━╸━━━━━━ 36% @Sun 17:00
 ```
 
-Model · project · git branch · session cost · minutes elapsed · context window fill · 5-hour and 7-day rate limits with time to reset. Fields Claude Code doesn't have (rate limits off a subscription, branch outside git) are left out. It refreshes after each turn, when usage moves, and every minute.
+Model and effort · project · git branch · session cost · minutes elapsed · the [caveman](https://github.com/JuliusBrussee/caveman) badge when installed. Then the context window and the 5-hour and 7-day rate limits, each bar green under 50%, yellow under 80%, red above. Fields Claude Code doesn't have (rate limits off a subscription, branch outside git) are left out. It refreshes after each turn, when usage moves, and every minute.
 
 ## Install
 

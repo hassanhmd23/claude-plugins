@@ -10,4 +10,4 @@ Answer `y` to add the marketplace, then pick a scope.
 
 | Plugin | What it does |
 | --- | --- |
-| [usage-line](plugins/usage-line) | Status entry with model, project, branch, cost, context and 5h/7d rate-limit bars |
+| [usage-line](plugins/usage-line) | Two-line status under the prompt: model, project, branch, cost, context and 5h/7d rate-limit bars |
