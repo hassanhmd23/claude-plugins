@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderChildren } from 'claude-code'
 import type { Snapshot } from '../types'
-import { bar, k, snapshot, tone } from './format'
+import { bar, k, modelName, snapshot, tone } from './format'
 
 const current = atom({ plugin: 'usage-line', key: 'snapshot' } as const, null)
 
@@ -30,13 +30,15 @@ async function refresh($: EngineInterface) {
     badge($),
   ])
   const branch = git?.exitCode === 0 ? git.stdout.trim() || undefined : undefined
-  const next = snapshot({ model, effort, project: root.split('/').pop() ?? root, branch, badge: caveman, usage, now })
+  const next = snapshot({ model: modelName(model), effort, project: root.split('/').pop() ?? root, branch, badge: caveman, usage, now })
   await update($, current, () => next)
 }
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const started = await next(e)
+    // Clears the notice 0.1.0 pinned with $.ui.status; the host keeps it across updates.
+    $.ui.status(undefined)
     await refresh($)
     // Keeps the reset countdowns moving between turns.
     $.clock.every(60_000, () => refresh($))
@@ -83,7 +85,7 @@ export const register: Register = on => {
       s.branch && <Text>{s.branch}</Text>,
       s.cost !== undefined && <Text>${s.cost.toFixed(2)}</Text>,
       <Text>{s.minutes}m</Text>,
-      s.badge && <Text color="claude">{s.badge}</Text>,
+      s.badge && <Text color="#d78700">{s.badge}</Text>,
     ].filter(Boolean) as RenderChildren[]
 
     const bottom = [

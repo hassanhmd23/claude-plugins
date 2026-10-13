@@ -1,5 +1,5 @@
 import { expect, test } from 'claude-code/testing'
-import { bar, k, snapshot, tone, until } from './format'
+import { bar, k, modelName, snapshot, tone, until } from './format'
 
 test('bar splits fill and track in half steps', () => {
   expect(bar(0)).toEqual(['', '━━━━━━━━━━'])
@@ -38,4 +38,8 @@ test('snapshot reads usage and skips what is missing', () => {
 
   const empty = snapshot({ model: 'Opus', project: 'kit', now, usage: { startedAt: now, context: { window: 1 }, rateLimits: [] } })
   expect([empty.context, empty.cost, empty.limits]).toEqual([undefined, undefined, []])
+})
+
+test('modelName turns ids into display names', () => {
+  expect([modelName('claude-opus-5-5'), modelName('claude-sonnet-5-5[1m]'), modelName('opus')]).toEqual(['Opus 5.5', 'Sonnet 5.5', 'opus'])
 })

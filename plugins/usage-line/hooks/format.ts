@@ -25,6 +25,12 @@ export const until = (ms: number): string => {
   return `${Math.floor(s / 60)}m`
 }
 
+// "claude-opus-5-5[1m]" -> "Opus 5.5"; anything else as given.
+export const modelName = (id: string): string => {
+  const m = /^claude-([a-z]+)-(\d+)-(\d+)/.exec(id)
+  return m ? `${m[1]![0]!.toUpperCase()}${m[1]!.slice(1)} ${m[2]}.${m[3]}` : id
+}
+
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 // Epoch ms -> "Sun 17:00", local time.

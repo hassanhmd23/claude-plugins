@@ -18,3 +18,5 @@ Type at the prompt of a Claude Code terminal session:
 ```
 
 Answer `y` to add the marketplace, then pick a scope.
+
+To get updates automatically, run `/plugin`, open **Marketplaces**, select `hassanhammoud-plugins` and choose **Enable auto-update**. Otherwise update with `claude plugin update usage-line@hassanhammoud-plugins`.
