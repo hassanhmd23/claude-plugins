@@ -1,0 +1,32 @@
+name: tests
+
+# Runs before each release (called by release.yml) or by hand from the Actions tab.
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    name: Validate and test every plugin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code@2.1.296
+
+      - name: Validate marketplace
+        run: claude plugin validate .
+
+      - name: Validate and test plugins
+        run: |
+          for plugin in plugins/*/; do
+            claude plugin validate "$plugin"
+            claude plugin test "$plugin"
+          done

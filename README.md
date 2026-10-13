@@ -13,3 +13,4 @@ To get updates automatically, run `/plugin`, open **Marketplaces**, select `hass
 | Plugin | What it does |
 | --- | --- |
 | [usage-line](plugins/usage-line) | Two-line status under the prompt: model, project, branch, cost, context and 5h/7d rate-limit bars |
+| [clean-view](plugins/clean-view) | Hides tool rows and shows a plain-English checklist of Claude's plan above the prompt |

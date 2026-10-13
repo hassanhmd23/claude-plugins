@@ -1,0 +1,7 @@
+{
+  "name": "clean-view",
+  "version": "0.1.0",
+  "description": "Hides tool rows and shows a plain-English checklist of Claude's plan above the prompt",
+  "author": { "name": "Hassan Hammoud" },
+  "types": "./types/index.d.ts"
+}

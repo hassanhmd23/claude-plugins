@@ -1,0 +1,37 @@
+name: release
+
+# Tags are <plugin>-v<version>, e.g. clean-view-v0.1.0.
+on:
+  push:
+    tags:
+      - '*-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  release:
+    needs: tests
+    runs-on: ubuntu-latest
+
+    name: GitHub release from the plugin's CHANGELOG.md
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          plugin="${TAG%-v*}"
+          version="v${TAG##*-v}"
+          changelog="plugins/$plugin/CHANGELOG.md"
+          test -f "$changelog" || { echo "$changelog not found."; exit 1; }
+          awk -v heading="## $version " 'index($0, heading) == 1 { found = 1; next } found && /^## / { exit } found' "$changelog" > notes.md
+          test -s notes.md || { echo "$changelog has no '## $version - YYYY-MM-DD' section."; exit 1; }
+          gh release create "$TAG" --title "$plugin $version" --notes-file notes.md --verify-tag
